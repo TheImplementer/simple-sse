@@ -29,7 +29,7 @@ public class MarketData {
     private Currency secondaryCode;
 
     @JsonProperty("recenttrades")
-    private List<Trade> recentTrades;
+    private List<PlacedTrade> recentTrades;
 
     @JsonProperty("sellorders")
     private List<CryptsyOrder> sellOrders;
@@ -65,7 +65,7 @@ public class MarketData {
         return secondaryCode;
     }
 
-    public List<Trade> getRecentTrades() {
+    public List<PlacedTrade> getRecentTrades() {
         return recentTrades;
     }
 
@@ -77,41 +77,37 @@ public class MarketData {
         return buyOrders;
     }
 
-    public static class Trade {
-        private int id;
-        private CryptsyDate time;
-        private TradeType type;
-        private BigDecimal price;
-        private BigDecimal quantity;
-        private BigDecimal total;
-
-        public int getId() {
-            return id;
-        }
-
-        public CryptsyDate getTime() {
-            return time;
-        }
-
-        public TradeType getType() {
-            return type;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public BigDecimal getQuantity() {
-            return quantity;
-        }
-
-        public BigDecimal getTotal() {
-            return total;
-        }
-    }
-
     public static enum TradeType {
         Buy, Sell;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private List<CryptsyOrder> buyOrders;
+        private List<CryptsyOrder> sellOrders;
+
+        private Builder() { }
+
+        public Builder withBuyOrders(List<CryptsyOrder> buyOrders) {
+            this.buyOrders = buyOrders;
+            return this;
+        }
+
+        public Builder withSellOrders(List<CryptsyOrder> sellOrders) {
+            this.sellOrders = sellOrders;
+            return this;
+        }
+
+        public MarketData build() {
+            final MarketData marketData = new MarketData();
+            marketData.buyOrders = buyOrders;
+            marketData.sellOrders = sellOrders;
+            return marketData;
+        }
     }
 
 }

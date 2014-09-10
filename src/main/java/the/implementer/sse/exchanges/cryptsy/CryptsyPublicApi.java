@@ -25,28 +25,33 @@ public class CryptsyPublicApi {
         this.dataReader = dataReader;
     }
 
-    public Map<Currency, MarketData> getMarketData() throws IOException {
+    public Map<Currency, MarketData> getMarketData() {
         final String marketDataUrl = format(MARKET_DATA_URL, cryptsyPublicApiUrl.get());
         return getData(marketDataUrl, MarketDataResponse.class);
     }
 
-    public Map<Currency, MarketData> getMarketData(long marketId) throws IOException {
+    public Map<Currency, MarketData> getMarketData(long marketId) {
         final String marketDataUrl = format(SINGLE_MARKET_DATA_URL, cryptsyPublicApiUrl.get(), marketId);
         return getData(marketDataUrl, MarketDataResponse.class);
     }
 
-    public Map<Currency, OrderData> getOrderData() throws IOException {
+    public Map<Currency, OrderData> getOrderData() {
         final String marketDataUrl = format(ORDER_DATA_URL, cryptsyPublicApiUrl.get());
         return getData(marketDataUrl, OrderDataResponse.class);
     }
 
-    public Map<Currency, OrderData> getOrderData(long marketId) throws IOException {
+    public Map<Currency, OrderData> getOrderData(long marketId) {
         final String marketDataUrl = format(SINGLE_ORDER_DATA_URL, cryptsyPublicApiUrl.get(), marketId);
         return getData(marketDataUrl, OrderDataResponse.class);
     }
 
-    private <R, T extends PublicApiResponse<R>> Map<Currency, R> getData(String url, Class<T> responseClass) throws IOException {
-        final T response = objectMapper.readValue(readDataFrom(url), responseClass);
+    private <R, T extends PublicApiResponse<R>> Map<Currency, R> getData(String url, Class<T> responseClass) {
+        final T response;
+        try {
+            response = objectMapper.readValue(readDataFrom(url), responseClass);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (!response.isSuccess()) {
             throw new CryptsyException(format("Remote server reported unsuccessful response for url: %s, error: %s", url, response.getError()));
         }
