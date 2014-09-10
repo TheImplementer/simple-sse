@@ -36,7 +36,7 @@ public class Main {
 
     private static ServletContextHandler createResourcesContextHandler() {
         final ServletContextHandler resourcesContextHandler = new ServletContextHandler(SESSIONS);
-        resourcesContextHandler.setContextPath("/*");
+        resourcesContextHandler.setContextPath("/");
         final ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirectoriesListed(true);
         resourceHandler.setWelcomeFiles(new String[]{"index.html"});
