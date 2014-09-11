@@ -46,20 +46,24 @@ public class DefaultExchangesService implements ExchangesService {
 
     @Override
     public void subscribe(ExchangeEventListener eventListener) {
-        eventsListeners.add(eventListener);
+        synchronized (eventsListeners) {
+            eventsListeners.add(eventListener);
+        }
     }
 
     private class ExchangeUpdater implements Runnable {
 
         @Override
         public void run() {
-            if (!eventsListeners.isEmpty()) {
-                final Map<Currency, MarketData> marketData = cryptsyPublicApi.getMarketData();
-                final MarketData ltcMarketData = marketData.get(LTC);
-                final List<Order> offers = tradesFor(ltcMarketData.getBuyOrders());
-                final List<Order> demands = tradesFor(ltcMarketData.getSellOrders());
-                final ExchangeUpdateEvent updateEvent = updateEvent("Cryptsy", offers, demands);
-                eventsListeners.forEach(listener -> listener.notify(updateEvent));
+            synchronized (eventsListeners) {
+                if (!eventsListeners.isEmpty()) {
+                    final Map<Currency, MarketData> marketData = cryptsyPublicApi.getMarketData();
+                    final MarketData ltcMarketData = marketData.get(LTC);
+                    final List<Order> offers = tradesFor(ltcMarketData.getBuyOrders());
+                    final List<Order> demands = tradesFor(ltcMarketData.getSellOrders());
+                    final ExchangeUpdateEvent updateEvent = updateEvent("Cryptsy", offers, demands);
+                    eventsListeners.forEach(listener -> listener.notify(updateEvent));
+                }
             }
         }
 
