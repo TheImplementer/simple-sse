@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -68,6 +69,7 @@ public class SimpleResource {
             final OutboundEvent.Builder outputEventBuilder = new OutboundEvent.Builder();
             outputEventBuilder.name("update-event");
             outputEventBuilder.data(ExchangeUpdateEvent.class, event);
+            outputEventBuilder.mediaType(MediaType.APPLICATION_JSON_TYPE);
             try {
                 eventOutput.write(outputEventBuilder.build());
             } catch (IOException e) {

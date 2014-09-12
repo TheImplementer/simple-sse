@@ -57,7 +57,7 @@ public class DefaultExchangesService implements ExchangesService {
         public void run() {
             synchronized (eventsListeners) {
                 if (!eventsListeners.isEmpty()) {
-                    final Map<Currency, MarketData> marketData = cryptsyPublicApi.getMarketData();
+                    final Map<Currency, MarketData> marketData = cryptsyPublicApi.getMarketData(3);
                     final MarketData ltcMarketData = marketData.get(LTC);
                     final List<Order> offers = tradesFor(ltcMarketData.getBuyOrders());
                     final List<Order> demands = tradesFor(ltcMarketData.getSellOrders());
