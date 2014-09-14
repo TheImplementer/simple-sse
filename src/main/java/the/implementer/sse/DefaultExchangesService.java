@@ -20,9 +20,9 @@ import static the.implementer.sse.exchanges.cryptsy.Currency.LTC;
 
 public class DefaultExchangesService implements ExchangesService {
 
-    private static final int UPDATE_INTERVAL = 1;
+    private static final int UPDATE_INTERVAL = 2;
 
-    private final List<ExchangeEventListener> eventsListeners = new ArrayList<>();
+    private final List<ExchangeEventListener> eventListeners = new ArrayList<>();
     private final CryptsyPublicApi cryptsyPublicApi;
     private final ScheduledExecutorService scheduledExecutorService;
 
@@ -46,8 +46,15 @@ public class DefaultExchangesService implements ExchangesService {
 
     @Override
     public void subscribe(ExchangeEventListener eventListener) {
-        synchronized (eventsListeners) {
-            eventsListeners.add(eventListener);
+        synchronized (eventListeners) {
+            eventListeners.add(eventListener);
+        }
+    }
+
+    @Override
+    public void unsubscribe(ExchangeEventListener eventListener) {
+        synchronized (eventListeners) {
+            eventListeners.remove(eventListener);
         }
     }
 
@@ -55,14 +62,14 @@ public class DefaultExchangesService implements ExchangesService {
 
         @Override
         public void run() {
-            synchronized (eventsListeners) {
-                if (!eventsListeners.isEmpty()) {
+            synchronized (eventListeners) {
+                if (!eventListeners.isEmpty()) {
                     final Map<Currency, MarketData> marketData = cryptsyPublicApi.getMarketData(3);
                     final MarketData ltcMarketData = marketData.get(LTC);
                     final List<Order> offers = tradesFor(ltcMarketData.getBuyOrders());
                     final List<Order> demands = tradesFor(ltcMarketData.getSellOrders());
                     final ExchangeUpdateEvent updateEvent = updateEvent("Cryptsy", offers, demands);
-                    eventsListeners.forEach(listener -> listener.notify(updateEvent));
+                    eventListeners.forEach(listener -> listener.notify(updateEvent));
                 }
             }
         }

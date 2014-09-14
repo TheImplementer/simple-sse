@@ -36,7 +36,7 @@ public class SimpleResource {
     @Path("sse")
     public EventOutput sse() {
         final EventOutput eventOutput = new EventOutput();
-        final NotificationThread notificationThread = new NotificationThread(eventOutput);
+        final NotificationThread notificationThread = new NotificationThread(exchangesService, eventOutput);
         exchangesService.subscribe(notificationThread);
         notificationThread.start();
         return eventOutput;
@@ -46,10 +46,13 @@ public class SimpleResource {
 
         private final BlockingQueue<ExchangeUpdateEvent> eventQueue = new SynchronousQueue<>();
 
+        private final ExchangesService exchangesService;
         private final EventOutput eventOutput;
 
-        public NotificationThread(EventOutput eventOutput) {
+        public NotificationThread(ExchangesService exchangesService, EventOutput eventOutput) {
+            this.exchangesService = exchangesService;
             this.eventOutput = eventOutput;
+            exchangesService.subscribe(this);
         }
 
         @Override
@@ -58,29 +61,21 @@ public class SimpleResource {
                 final ExchangeUpdateEvent event;
                 try {
                     event = eventQueue.take();
+                    sendUpdateEvent(event);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("An exception occurred while waiting for events.", e);
+                } catch (IOException e) {
+                    exchangesService.unsubscribe(this);
+                    break;
                 }
-                sendUpdateEvent(event);
             }
         }
 
-        private void sendUpdateEvent(ExchangeUpdateEvent event) {
+        private void sendUpdateEvent(ExchangeUpdateEvent event) throws IOException {
             final OutboundEvent.Builder outputEventBuilder = new OutboundEvent.Builder();
-            outputEventBuilder.name("update-event");
-            outputEventBuilder.data(ExchangeUpdateEvent.class, event);
             outputEventBuilder.mediaType(MediaType.APPLICATION_JSON_TYPE);
-            try {
-                eventOutput.write(outputEventBuilder.build());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                try {
-                    eventOutput.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            outputEventBuilder.data(ExchangeUpdateEvent.class, event);
+            eventOutput.write(outputEventBuilder.build());
         }
 
         @Override

@@ -6,4 +6,6 @@ public interface ExchangesService {
     void stop();
 
     void subscribe(ExchangeEventListener eventListener);
+
+    void unsubscribe(ExchangeEventListener eventListener);
 }

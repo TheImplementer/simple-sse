@@ -3,8 +3,72 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Welcome Page</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="js/sse.js"></script>
+    <style type="text/css">
+        body {
+            text-align: center;
+        }
+
+        #content {
+            margin: auto;
+            width: 650px;
+        }
+
+        #offers {
+            margin-right: 20px;
+        }
+
+        #offers, #demands {
+            float: left;
+            width: 300px;
+            border: 2px solid dimgrey;
+            border-radius: 3px;
+        }
+
+        .row {
+            float: left;
+            width: 100%;
+            clear: both;
+            border-bottom: 1px solid dimgrey;
+            background-color: #efefef;
+        }
+
+        .row:last-child {
+            border: 0;
+        }
+
+        .row > div {
+            float: left;
+            width: 45%;
+            padding: 5px;
+        }
+
+        .row > div:first-child {
+            border-right: 1px solid dimgrey;
+        }
+
+        .clearfix:after {
+            content: ".";
+            visibility: hidden;
+            display: block;
+            height: 0;
+            clear: both;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome Page</h1>
+<h1>Cryptsy Market</h1>
+
+<div id="content" class="clearfix">
+    <div>
+        <div id="demands">
+
+        </div>
+        <div id="offers">
+
+        </div>
+    </div>
+</div>
 </body>
 </html>
